@@ -2,32 +2,40 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './routes/ProtectedRoute';
-import DashboardPage from './pages/DashboardPage';
+import GmailDashboard from './pages/GmailDashboard';
+import OutlookDashboard from './pages/OutlookDashboard';
+import Layout from './layouts/Layout';
+import OAuthCallback from './pages/OAuthCallbackPage';
 
 const App: React.FC = () => {
     return (
         <Router>
-            <Routes>
-                {/* Root route */}
-                <Route path="/" element={<LoginPage />} />
+            <Layout>
+                <Routes>
+                    <Route path="/login" element={<LoginPage />} />
 
+                    <Route path="/oauth-callback" element={<OAuthCallback />} />
 
-                {/* Public route */}
-                <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/gmail"
+                        element={
+                            <ProtectedRoute provider="gmail">
+                                <GmailDashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/outlook"
+                        element={
+                            <ProtectedRoute provider="outlook">
+                                <OutlookDashboard />
+                            </ProtectedRoute>
+                        }
+                    />
 
-                {/* Protected route */}
-                <Route
-                    path="/dashboard"
-                    element={
-                        <ProtectedRoute>
-                            <DashboardPage />
-                        </ProtectedRoute>
-                    }
-                />
-
-                {/* Default redirect to login */}
-                <Route path="*" element={<LoginPage />} />
-            </Routes>
+                    <Route path="*" element={<LoginPage />} />
+                </Routes>
+            </Layout>
         </Router>
     );
 };

@@ -1,18 +1,21 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { isAuthenticated } from '../utils/authUtils'; 
+import { Navigate, useLocation } from 'react-router-dom';
+import { isAuthenticated } from '../utils/authUtils';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
+    provider: 'gmail' | 'outlook';
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    if (!isAuthenticated()) {
-        // If not authenticated, redirect to login
-        return <Navigate to="/login" />;
-    }
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, provider }) => {
+    const location = useLocation();
     
-    // If authenticated, allow access to the route
+    const authenticated = isAuthenticated(provider);
+
+    if (!authenticated) {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
     return <>{children}</>;
 };
 
