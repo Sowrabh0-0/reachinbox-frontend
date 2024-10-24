@@ -7,6 +7,7 @@ const OAuthCallback: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [emails, setEmails] = useState<any[]>([]);
 
     useEffect(() => {
         const query = new URLSearchParams(window.location.search);
@@ -33,21 +34,26 @@ const OAuthCallback: React.FC = () => {
 
             storeTokens(provider as 'gmail' | 'outlook', parsedTokens);
 
-            fetchEmails(provider);
-            console.log("Navigating to", `/${provider}`);
-            navigate(`/${provider}`);
+            fetchEmails(provider, parsedTokens);
         } else {
             setError('Invalid OAuth callback data');
             setIsLoading(false);
         }
     }, [navigate]);
 
-    const fetchEmails = async (provider: string) => {
+    const fetchEmails = async (provider: string, tokens: any) => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fetch${provider.charAt(0).toUpperCase() + provider.slice(1)}Emails`, {
+                headers: {
+                    Authorization: `Bearer ${tokens.access_token}`,
+                },
                 withCredentials: true
             });
             console.log('Emails fetched:', response.data);
+            setEmails(response.data);
+
+            // Navigate to GmailDashboard or OutlookDashboard with emails in state
+            navigate(`/${provider}`, { state: { emails: response.data } });
         } catch (error) {
             console.error('Error fetching emails:', error);
             setError('Failed to fetch emails');

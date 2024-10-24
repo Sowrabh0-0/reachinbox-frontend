@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaSync, FaSpinner } from 'react-icons/fa';
+import DOMPurify from 'dompurify';
 
 interface Email {
     id: string;
@@ -8,6 +9,7 @@ interface Email {
     date: string;
     body: string;
     category: string;
+    from: string;
 }
 
 interface EmailListProps {
@@ -29,8 +31,12 @@ const EmailList: React.FC<EmailListProps> = ({ emails, category, onRefresh, load
             <div className="w-1/3 bg-white shadow-md overflow-y-scroll p-6">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">{category}</h2>
-                    <button onClick={onRefresh} className="text-gray-500 hover:text-gray-700">
-                        <FaSync size={20} /> 
+                    <button 
+                        onClick={onRefresh} 
+                        className={`text-gray-500 hover:text-gray-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                        disabled={loading}
+                    >
+                        {loading ? <FaSpinner className="animate-spin" /> : <FaSync size={20} />}
                     </button>
                 </div>
 
@@ -38,7 +44,7 @@ const EmailList: React.FC<EmailListProps> = ({ emails, category, onRefresh, load
                     <div className="flex justify-center items-center h-full">
                         <FaSpinner className="animate-spin text-gray-500" size={40} />
                     </div>
-                ) : (
+                ) : emails.length > 0 ? (
                     <ul className="space-y-4">
                         {emails.map((email) => (
                             <li 
@@ -49,22 +55,24 @@ const EmailList: React.FC<EmailListProps> = ({ emails, category, onRefresh, load
                                 <div className="flex justify-between">
                                     <div>
                                         <h3 className="font-semibold text-gray-800">{email.subject}</h3>
-                                        <p className="text-sm text-gray-500">From: {email.sender}</p>
+                                        <p className="text-sm text-gray-500">From: {email.from}</p>
                                     </div>
                                     <p className="text-sm text-gray-500">{email.date}</p>
                                 </div>
                             </li>
                         ))}
                     </ul>
+                ) : (
+                    <p>No emails found for the selected category.</p>
                 )}
             </div>
             <div className="w-2/3 bg-gray-100 p-6 overflow-auto"> 
                 {selectedEmail ? (
                     <div>
                         <h2 className="text-2xl font-semibold mb-2">{selectedEmail.subject}</h2>
-                        <p className="text-sm text-gray-500 mb-4">From: {selectedEmail.sender} - {selectedEmail.date}</p>
+                        <p className="text-sm text-gray-500 mb-4">From: {selectedEmail.from} - {selectedEmail.date}</p>
                         <div
-                            dangerouslySetInnerHTML={{ __html: selectedEmail.body }}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedEmail.body) }}
                             className="prose max-w-none"
                         ></div>
                     </div>
