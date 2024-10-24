@@ -1,5 +1,6 @@
 export const isAuthenticated = (provider: 'gmail' | 'outlook'): boolean => {
     const tokens = localStorage.getItem(`${provider}Tokens`); 
+    console.log("tokens",tokens);
     return !!tokens;
 };
 

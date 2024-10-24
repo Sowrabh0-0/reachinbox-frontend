@@ -14,6 +14,8 @@ const OAuthCallback: React.FC = () => {
         const tokens = query.get('tokens');
         const provider = query.get('provider');
 
+        console.log("oauth",tokens);
+
         if (tokens && provider) {
 
             let parsedTokens: any;
