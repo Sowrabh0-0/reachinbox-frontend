@@ -14,9 +14,9 @@ interface Email {
 }
 
 const GmailDashboard: React.FC = () => {
-    const location = useLocation(); // Use location to get passed state
-    const [gmailEmails, setGmailEmails] = useState<Email[]>(location.state?.emails || []); // Use emails from state if available
-    const [loading, setLoading] = useState(false); // Avoid redundant loading if emails were passed
+    const location = useLocation(); 
+    const [gmailEmails, setGmailEmails] = useState<Email[]>(location.state?.emails || []);
+    const [loading, setLoading] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All Mails');
 
     const fetchEmails = () => {
@@ -24,7 +24,6 @@ const GmailDashboard: React.FC = () => {
         const tokens = localStorage.getItem('gmailTokens') ? JSON.parse(localStorage.getItem('gmailTokens') as string) : null;
 
         if (!tokens) {
-            console.error('No Gmail tokens found');
             setLoading(false);
             return;
         }
@@ -32,41 +31,38 @@ const GmailDashboard: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_API_BASE_URL}/fetchGmailEmails`, {
                 headers: {
-                    Authorization: `Bearer ${tokens.access_token}`, // Use the parsed token
+                    Authorization: `Bearer ${tokens.access_token}`,
                 },
                 withCredentials: true,
             })
             .then((response) => {
                 const newEmails = response.data;
 
-                // Append new emails if available
                 if (newEmails && newEmails.length > 0) {
-                    setGmailEmails((prevEmails) => [...prevEmails, ...newEmails]); // Append emails
-                    localStorage.setItem('gmailEmails', JSON.stringify([...gmailEmails, ...newEmails])); // Update localStorage
+                    setGmailEmails((prevEmails) => [...prevEmails, ...newEmails]);
+                    localStorage.setItem('gmailEmails', JSON.stringify([...gmailEmails, ...newEmails]));
                 }
 
                 setLoading(false);
             })
             .catch((error) => {
-                console.error('Error fetching Gmail emails:', error);
                 setLoading(false);
             });
     };
 
     useEffect(() => {
         if (gmailEmails.length === 0) {
-            // If no emails were passed or localStorage is empty, fetch from the backend
             const cachedEmails = localStorage.getItem('gmailEmails');
             if (cachedEmails) {
-                setGmailEmails(JSON.parse(cachedEmails)); // Use cached emails if available
+                setGmailEmails(JSON.parse(cachedEmails));
             } else {
-                fetchEmails(); // Fetch if no cache available
+                fetchEmails();
             }
         }
     }, [gmailEmails]);
 
     const handleRefresh = () => {
-        fetchEmails(); // Refresh emails on demand
+        fetchEmails();
     };
 
     const filteredEmails =

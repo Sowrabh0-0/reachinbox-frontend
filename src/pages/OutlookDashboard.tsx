@@ -13,7 +13,7 @@ interface Email {
 }
 
 const OutlookDashboard: React.FC = () => {
-    const [outlookEmails, setOutlookEmails] = useState<Email[]>([]); // Store only Outlook emails
+    const [outlookEmails, setOutlookEmails] = useState<Email[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState('All Mails');
 
@@ -22,7 +22,6 @@ const OutlookDashboard: React.FC = () => {
         const tokens = localStorage.getItem('outlookTokens') ? JSON.parse(localStorage.getItem('outlookTokens') as string) : null;
 
         if (!tokens) {
-            console.error('No Outlook tokens found');
             setLoading(false);
             return;
         }
@@ -30,40 +29,37 @@ const OutlookDashboard: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_API_BASE_URL}/fetchOutlookEmails`, {
                 headers: {
-                    Authorization: `Bearer ${tokens.access_token}`, // Use the parsed token
+                    Authorization: `Bearer ${tokens.access_token}`,
                 },
                 withCredentials: true,
             })
             .then((response) => {
                 const newEmails = response.data;
 
-                // If newEmails are non-empty, append them to the existing emails
                 if (newEmails && newEmails.length > 0) {
-                    setOutlookEmails((prevEmails) => [...prevEmails, ...newEmails]); // Append emails
-                    localStorage.setItem('outlookEmails', JSON.stringify([...outlookEmails, ...newEmails])); // Update localStorage
+                    setOutlookEmails((prevEmails) => [...prevEmails, ...newEmails]);
+                    localStorage.setItem('outlookEmails', JSON.stringify([...outlookEmails, ...newEmails]));
                 }
 
                 setLoading(false);
             })
             .catch((error) => {
-                console.error('Error fetching Outlook emails:', error);
                 setLoading(false);
             });
     };
 
     useEffect(() => {
-        // Check if we already have cached Outlook emails in localStorage
         const cachedEmails = localStorage.getItem('outlookEmails');
         if (cachedEmails) {
-            setOutlookEmails(JSON.parse(cachedEmails)); // Use cached emails if available
+            setOutlookEmails(JSON.parse(cachedEmails));
             setLoading(false);
         } else {
-            fetchEmails(); // Fetch if no cache available
+            fetchEmails();
         }
     }, []);
 
     const handleRefresh = () => {
-        fetchEmails(); // Refresh emails on demand
+        fetchEmails();
     };
 
     const filteredEmails =

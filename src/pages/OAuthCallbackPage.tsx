@@ -15,8 +15,6 @@ const OAuthCallback: React.FC = () => {
         const provider = query.get('provider');
 
         if (tokens && provider) {
-            console.log("Tokens:", tokens);
-            console.log("Provider:", provider);
 
             let parsedTokens: any;
 
@@ -49,13 +47,10 @@ const OAuthCallback: React.FC = () => {
                 },
                 withCredentials: true
             });
-            console.log('Emails fetched:', response.data);
             setEmails(response.data);
 
-            // Navigate to GmailDashboard or OutlookDashboard with emails in state
             navigate(`/${provider}`, { state: { emails: response.data } });
         } catch (error) {
-            console.error('Error fetching emails:', error);
             setError('Failed to fetch emails');
         } finally {
             setIsLoading(false); 
